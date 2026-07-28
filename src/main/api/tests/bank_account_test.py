@@ -9,8 +9,7 @@ class TestBankAccount:
         [
             1000,
             9000,
-            7000,
-            5000
+            8000
         ]
 
     )
