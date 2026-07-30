@@ -4,7 +4,7 @@ import requests
 import pytest
 
 
-@pytest.mark.api
+
 class TestBankCredit:
     @pytest.mark.parametrize(
         "credit_amount, term_months",

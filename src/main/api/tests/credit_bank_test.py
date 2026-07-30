@@ -2,7 +2,7 @@ import requests
 import pytest
 import random
 
-
+@pytest.mark.api
 class TestCreditBank:
     @pytest.mark.parametrize(
         'credit_amount',

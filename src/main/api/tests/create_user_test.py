@@ -1,16 +1,70 @@
 import requests
 import pytest
 import random
+from src.main.api.models.create_user_request import CreateUserRequest
+from src.main.api.models.create_user_response import CreateUserResponse
+from src.main.api.models.login_user_request import LoginUserRequest
 
+
+@pytest.mark.api
 class TestCreateUser:
+    @pytest.mark.parametrize(
+        'username, password',
+        [
+            ('qew4', 'Pas!sw0rd2'),
+            ('ppep43w', 'Pas!sw0rd1'),
+            ('qw1234', 'Pas!sw0rdd'),
+
+        ]
+    )
     # ЗАХОДИМ ПОД КРЕДАМИ АДМИНА
-    def test_create_user(self):
+    def test_create_user_valid(self, username, password):
+        login_user_request = LoginUserRequest(username='admin', password='123456')
         login_admin_response = requests.post(
             url='http://localhost:4111/api/auth/token/login',
-            json={
-                'username': 'admin',
-                'password': '123456'
-            },
+            json=login_user_request.model_dump(),
+            headers={
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        )
+        assert login_admin_response.status_code == 200
+        admin_token = login_admin_response.json().get('token')
+
+
+        create_user_request = CreateUserRequest(username=username, password='Pas!sw0rd', role='ROLE_USER')
+        response = requests.post(
+            url='http://localhost:4111/api/admin/create',
+            json=create_user_request.model_dump(),
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {admin_token}'
+            }
+        )
+        assert response.status_code == 200
+        create_user_response = CreateUserResponse(**response.json())
+        assert create_user_request.username == create_user_response.username
+        assert create_user_request.role == create_user_response.role
+
+    @pytest.mark.parametrize(
+        'username, password',
+        [
+            ('qr', 'Pas!sw0rd2'),
+            ('Weridwirrfwehf9whfwwwww', 'Pas!sw0rd1'),
+            ('Qer!!', 'Pas!sw0rdd'),
+            ('Qer!1', 'pas!sw0rdd'),
+            ('Qer21', 'PASSWORD!0'),
+            ('Qe23', 'Passw0rdd'),
+            ('Qer4!', 'Passw0rdd1'),
+        ]
+    )
+    # ЗАХОДИМ ПОД КРЕДАМИ АДМИНА
+    # Тест на не валидного пользователя]
+    def test_create_user_invalid(self, username, password):
+        login_user_request = LoginUserRequest(username='admin', password='123456')
+        login_admin_response = requests.post(
+            url='http://localhost:4111/api/auth/token/login',
+            json=login_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -20,17 +74,13 @@ class TestCreateUser:
         admin_token = login_admin_response.json().get('token')
 
         # СОЗДАЕМ НА АДМИНЕ ЮСЕРА
-        username = f'Vikos{random.randint(0,1000)}'
+        create_user_request = CreateUserRequest(username=username, password=password, role='ROLE_USER')
         create_user_response = requests.post(
             url='http://localhost:4111/api/admin/create',
-            json={
-                'username':username,
-                'password': 'Pas!sw0rd',
-                'role': 'ROLE_USER'
-            },
+            json=create_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {admin_token}'
             }
         )
-        assert create_user_response.status_code == 200
+        assert create_user_response.status_code == 400
