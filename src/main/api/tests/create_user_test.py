@@ -60,7 +60,7 @@ class TestCreateUser:
         ]
     )
     # ЗАХОДИМ ПОД КРЕДАМИ АДМИНА
-    # Тест на не валидного пользователя]
+    # Тест на не валидного пользователя
     def test_create_user_invalid(self, username, password):
         login_user_request = LoginUserRequest(username='admin', password='123456')
         login_admin_response = requests.post(
