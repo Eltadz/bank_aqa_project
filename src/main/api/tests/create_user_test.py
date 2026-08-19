@@ -6,14 +6,15 @@ from src.main.api.models.create_user_response import CreateUserResponse
 from src.main.api.models.login_user_request import LoginUserRequest
 
 
+
 @pytest.mark.api
 class TestCreateUser:
     @pytest.mark.parametrize(
         'username, password',
         [
-            ('qew4', 'Pas!sw0rd2'),
-            ('ppep43w', 'Pas!sw0rd1'),
-            ('qw1234', 'Pas!sw0rdd'),
+            ('qew454', 'Pas!sw0rd2'),
+            ('ppep43w4r', 'Pas!sw0rd1'),
+            ('qw1234r4e', 'Pas!sw0rdd'),
 
         ]
     )
@@ -35,27 +36,27 @@ class TestCreateUser:
         create_user_request = CreateUserRequest(username=username, password='Pas!sw0rd', role='ROLE_USER')
         response = requests.post(
             url='http://localhost:4111/api/admin/create',
-            json=create_user_request.model_dump(),
+            json=create_user_request.model_dump(), #ЗАПАКОВЫВАЕМ В json
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {admin_token}'
             }
         )
         assert response.status_code == 200
-        create_user_response = CreateUserResponse(**response.json())
+        create_user_response = CreateUserResponse(**response.json()) #РАСПАКОВЫВАЕМ ОТВЕТ
         assert create_user_request.username == create_user_response.username
         assert create_user_request.role == create_user_response.role
 
     @pytest.mark.parametrize(
         'username, password',
         [
-            ('qr', 'Pas!sw0rd2'),
-            ('Weridwirrfwehf9whfwwwww', 'Pas!sw0rd1'),
-            ('Qer!!', 'Pas!sw0rdd'),
-            ('Qer!1', 'pas!sw0rdd'),
-            ('Qer21', 'PASSWORD!0'),
-            ('Qe23', 'Passw0rdd'),
-            ('Qer4!', 'Passw0rdd1'),
+            ('qi', 'Pas!sw0rd2'),
+            ('Weridwirrfwehf9whfwwwqww', 'Pas!sw0rd1'),
+            ('Qer!1', 'Pas!sw0rdd'),
+            ('Qer?', 'pas!sw0rdd'),
+            ('Qer44', 'PASSWORD!0'),
+            ('Q443', 'Passw0rdd'),
+            ('Qer2!', 'Passw0rdd1'),
         ]
     )
     # ЗАХОДИМ ПОД КРЕДАМИ АДМИНА

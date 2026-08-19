@@ -1,14 +1,17 @@
+import requests
 
 
 
-class RequestSpec:
+class RequestSpecs:
     @staticmethod
     def base_headers():
         return {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'content-type': 'application/json',
+            'accept': 'application/json',
         }
-    
     @staticmethod
-    def auth_headers(username: str, password: str):
-        ...
+    def auth_headers():
+        requests.post(
+            url='',
+            
+        )
