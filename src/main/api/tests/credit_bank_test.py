@@ -2,8 +2,18 @@ import requests
 import pytest
 import random
 
+
+from src.main.api.models.create_user_request import CreateUserRequest
+from src.main.api.models.login_user_request import LoginUserRequest
+from src.main.api.models.deposit_credit_account_response import DepositCreditAccountResponse
+from src.main.api.models.deposit_credit_account_request import DepositCreditAccountRequest
+from src.main.api.models.repayment_credit_request import RepaymentCreditRequest
+from src.main.api.models.repayment_credit_response import RepaymentCreditResponse
+
+
 @pytest.mark.api
 class TestCreditBank:
+    # валидный тест на получение кредита
     @pytest.mark.parametrize(
         'credit_amount',
         [
@@ -15,12 +25,10 @@ class TestCreditBank:
     )
     def test_deposit_credit_bank_valid(self, credit_amount):
         # аунтификация как админ с данными кредами
+        login_user_request = LoginUserRequest(username='admin', password='123456')
         login_admin_response = requests.post(
             url='http://localhost:4111/api/auth/token/login',
-            json={
-                'username': 'admin',
-                'password': '123456'
-            },
+            json=login_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -32,14 +40,11 @@ class TestCreditBank:
 
 
         # создание на токене админа юзера с ролью кредит
-        username = f'Vikos{random.randint(0, 1000)}'
+        username = f'Vikos{random.randint(0, 100000)}'
+        create_user_request = CreateUserRequest(username=username, password='Pas!sw0rd', role='ROLE_CREDIT_SECRET')
         create_user_response = requests.post(
             url='http://localhost:4111/api/admin/create',
-            json={
-                'username': username,
-                'password': 'Pas!sw0rd',
-                'role': 'ROLE_CREDIT_SECRET'
-            },
+            json=create_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {admin_token}'
@@ -48,12 +53,10 @@ class TestCreditBank:
         assert create_user_response.status_code == 200
 
         # регистрация юзером чтобы взять его токен и создать счет
+        login_user_request = LoginUserRequest(username=username, password='Pas!sw0rd')
         login_user_response = requests.post(
             url='http://localhost:4111/api/auth/token/login',
-            json={
-                'username': username,
-                'password': 'Pas!sw0rd'
-            },
+            json=login_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -76,23 +79,30 @@ class TestCreditBank:
         account_id = create_bank_account_response.json().get('id')
 
         # взял кредит на созданный аккаунт
-        create_credit_account_response = requests.post(
+        deposit_credit_account_request = DepositCreditAccountRequest(accountId=account_id, amount=credit_amount, termMonths=12)
+        response = requests.post(
             url='http://localhost:4111/api/credit/request',
-            json={
-                "accountId": account_id,
-                "amount": credit_amount,
-                "termMonths": 12
-            },
+            json=deposit_credit_account_request.model_dump(),
             headers={
                 'accept': 'application/json',
                 'Authorization': f'Bearer {user_token}'
             }
         )
-        assert create_credit_account_response.status_code == 201
-        assert create_credit_account_response.json().get('balance') == credit_amount
-        assert create_credit_account_response.json().get('termMonths') == 12
-        # credit_id = create_credit_account_response.json()['creditId']
+        assert response.status_code == 201
+        deposit_credit_account_response = DepositCreditAccountResponse(**response.json())
+        assert deposit_credit_account_request.amount == deposit_credit_account_response.balance
+        assert deposit_credit_account_request.termMonths == deposit_credit_account_response.termMonths
 
+
+
+
+
+
+
+
+
+
+    # невалидный тест на получение кредита
     @pytest.mark.parametrize(
         'credit_amount',
         [
@@ -104,12 +114,10 @@ class TestCreditBank:
     )
     def test_deposit_credit_bank_invalid(self, credit_amount):
         # аунтификация как админ с данными кредами
+        login_user_request = LoginUserRequest(username='admin',password='123456')
         login_admin_response = requests.post(
             url='http://localhost:4111/api/auth/token/login',
-            json={
-                'username': 'admin',
-                'password': '123456'
-            },
+            json=login_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -120,13 +128,10 @@ class TestCreditBank:
 
         # создание на токене админа юзера с ролью кредит
         username = f'Vikos{random.randint(0, 1000)}'
+        create_user_request = CreateUserRequest(username=username, password='Pas!sw0rd',role='ROLE_CREDIT_SECRET')
         create_user_response = requests.post(
             url='http://localhost:4111/api/admin/create',
-            json={
-                'username': username,
-                'password': 'Pas!sw0rd',
-                'role': 'ROLE_CREDIT_SECRET'
-            },
+            json=create_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {admin_token}'
@@ -135,12 +140,10 @@ class TestCreditBank:
         assert create_user_response.status_code == 200
 
         # регистрация юзером чтобы взять его токен и создать счет
+        login_user_request = LoginUserRequest(username=username, password='Pas!sw0rd')
         login_user_response = requests.post(
             url='http://localhost:4111/api/auth/token/login',
-            json={
-                'username': username,
-                'password': 'Pas!sw0rd'
-            },
+            json=login_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -161,22 +164,41 @@ class TestCreditBank:
         account_id = create_bank_account_response.json().get('id')
 
         # взял кредит на созданный аккаунт
-        create_credit_account_response = requests.post(
+        deposit_credit_account_request = DepositCreditAccountRequest(accountId=account_id, amount=credit_amount, termMonths=12)
+        deposit_credit_account_response = requests.post(
             url='http://localhost:4111/api/credit/request',
-            json={
-                "accountId": account_id,
-                "amount": credit_amount,
-                "termMonths": 12
-            },
+            json=deposit_credit_account_request.model_dump(),
             headers={
                 'accept': 'application/json',
                 'Authorization': f'Bearer {user_token}'
             }
         )
-        assert create_credit_account_response.status_code == 400
+        assert deposit_credit_account_response.status_code == 400
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # ТЕСТ НА ПОГАШЕНИЕ КРЕДИТА ВАЛИДНЫЙ
     @pytest.mark.parametrize(
         'credit_amount, repayment_amount',
         [
@@ -188,6 +210,7 @@ class TestCreditBank:
     # ТЕСТ НА ПОГАШЕНИЕ КРЕДИТА ВАЛИДНЫЙ
     def test_repayment_credit_bank_valid(self, credit_amount, repayment_amount):
         # аунтификация как админ с данными кредами
+        login_user_request = LoginUserRequest(username='admin',password='123456')
         login_admin_response = requests.post(
             url='http://localhost:4111/api/auth/token/login',
             json={
@@ -204,13 +227,10 @@ class TestCreditBank:
 
         #создание на токене админа юзера с ролью кредит
         username = f'Vikos{random.randint(0, 1000)}'
+        create_user_request = CreateUserRequest(username=username, password='Pas!sw0rd', role='ROLE_CREDIT_SECRET')
         create_user_response = requests.post(
             url='http://localhost:4111/api/admin/create',
-            json={
-                'username': username,
-                'password': 'Pas!sw0rd',
-                'role': 'ROLE_CREDIT_SECRET'
-            },
+            json=create_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {admin_token}'
@@ -219,12 +239,10 @@ class TestCreditBank:
         assert create_user_response.status_code == 200
 
         # регистрация юзером чтобы взять его токен и создать счет
+        login_user_request = LoginUserRequest(username=username, password='Pas!sw0rd')
         login_user_response = requests.post(
             url='http://localhost:4111/api/auth/token/login',
-            json={
-                'username': username,
-                'password': 'Pas!sw0rd'
-            },
+            json=login_user_request.model_dump(),
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -245,13 +263,10 @@ class TestCreditBank:
         account_id = create_bank_account_response.json().get('id')
 
         # взял кредит на созданный аккаунт
+        deposit_credit_account_request = DepositCreditAccountRequest(accountId=account_id, amount=credit_amount, termMonths=12)
         deposit_credit_account_response = requests.post(
             url='http://localhost:4111/api/credit/request',
-            json={
-                "accountId": account_id,
-                "amount": credit_amount,
-                "termMonths": 12
-            },
+            json=deposit_credit_account_request.model_dump(),
             headers={
                 'accept': 'application/json',
                 'Authorization': f'Bearer {user_token}'
@@ -261,21 +276,32 @@ class TestCreditBank:
         credit_id = deposit_credit_account_response.json().get('creditId')
 
         #погашение кредита
-        repayment_credit_account_response = requests.post(
+        repayment_credit_request = RepaymentCreditRequest(creditId=credit_id, accountId=account_id, amount=repayment_amount)
+        response = requests.post(
             url='http://localhost:4111/api/credit/repay',
-            json={
-                "creditId": credit_id,
-                "accountId": account_id,
-                "amount": repayment_amount
-            },
+            json=repayment_credit_request.model_dump(),
             headers={
                 'accept': 'application/json',
                 'Authorization': f'Bearer {user_token}'
             }
         )
-        assert repayment_credit_account_response.status_code == 200
-        assert repayment_credit_account_response.json().get('amountDeposited') == repayment_amount
+        assert response.status_code == 200
+        repayment_credit_response = RepaymentCreditResponse(**response.json())
+        assert repayment_credit_request.amount == repayment_credit_response.amountDeposited
 
+
+
+
+
+
+
+
+
+
+
+
+
+    #невалидный тест на погашение кредита
     @pytest.mark.parametrize(
         'credit_amount, repayment_amount',
         [
