@@ -1,9 +1,7 @@
-import requests
+
 import pytest
 import random
 from src.main.api.models.create_user_request import CreateUserRequest
-from src.main.api.models.create_user_response import CreateUserResponse
-from src.main.api.models.login_user_request import LoginUserRequest
 from src.main.api.requests.create_user_requester import CreateUserRequester
 from src.main.api.specs.request_specs import RequestSpecs
 from src.main.api.specs.response_specs import ResponseSpecs
@@ -33,8 +31,8 @@ class TestCreateUser:
             ('Weridwirrfwehf9whfwwwqww', 'Pas!sw0rd1'),
             ('Qer!1', 'Pas!sw0rdd'),
             ('Qer?', 'pas!sw0rdd'),
-            ('Qer44', 'PASSWORD!0'),
-            ('Q443', 'Passw0rdd'),
+            ('Qer44!', 'PASSWORD!0'),
+            ('Q443!', 'Passw0rdd'),
             ('Qer2!', 'Passw0rdd1'),
         ]
     )

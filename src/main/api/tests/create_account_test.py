@@ -3,12 +3,11 @@ from uuid import uuid4
 
 
 from src.main.api.models.create_user_request import CreateUserRequest
-
 from src.main.api.requests.create_user_requester import CreateUserRequester
-
 from src.main.api.specs.request_specs import RequestSpecs
 from src.main.api.specs.response_specs import ResponseSpecs
 from src.main.api.requests.creat_account_requester import CreateAccountRequester
+
 
 @pytest.mark.api
 class TestCreateBankAccount:
@@ -23,7 +22,7 @@ class TestCreateBankAccount:
         ).post(create_user_request)
 
 
-
+        
        # создаем аккаунт
         response = CreateAccountRequester(
             request_spec=RequestSpecs.auth_headers(username=username, password='Pas!sw0rd'),

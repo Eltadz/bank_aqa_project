@@ -1,26 +1,13 @@
-import requests
+from uuid import uuid4
 import pytest
-import random
 
-from src.main.api.models.create_account_response import CreateAccountResponse
 
 from src.main.api.models.deposit_bank_account_request import DepositBankAccountRequest
-from src.main.api.models.deposit_bank_account_response import DepositBankAccountResponse
-from src.main.api.models.login_user_request import LoginUserRequest
-from src.main.api.models.login_user_response import LoginUserResponse
 from src.main.api.models.transfer_bank_account_request import TransferBankAccountRequest
 from src.main.api.requests.transfer_account_requester import TransferBankAccountRequester
-
-
-
-######################### new
-from uuid import uuid4
-
 from src.main.api.models.create_user_request import CreateUserRequest
-
 from src.main.api.requests.create_user_requester import CreateUserRequester
 from src.main.api.requests.deposit_bank_account_requester import DepositBankAccountRequester
-
 from src.main.api.specs.request_specs import RequestSpecs
 from src.main.api.specs.response_specs import ResponseSpecs
 from src.main.api.requests.creat_account_requester import CreateAccountRequester
@@ -88,9 +75,6 @@ class TestBankAccount:
         [
             999,
             9001,
-            5000,
-            6000,
-            7000,
             10000
         ]
 

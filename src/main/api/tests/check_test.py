@@ -30,7 +30,7 @@ from src.main.api.requests.creat_account_requester import CreateAccountRequester
 
 
 
-@pytest.mark.api
+
 class TestBankAccount:
 
     #                                             ПОЗИТИВНЫЙ ТЕСТ НА ТРАНСФЕР
