@@ -1,5 +1,6 @@
 from http import HTTPStatus
 import requests
+from requests import Response
 
 from src.main.api.requests.requester import Requester
 from src.main.api.models.repayment_credit_request import RepaymentCreditRequest
@@ -9,7 +10,7 @@ from src.main.api.models.repayment_credit_response import RepaymentCreditRespons
 
 
 class RepaymentCreditRequester(Requester):
-    def post(self, repayment_credit_request: RepaymentCreditRequest):
+    def post(self, repayment_credit_request: RepaymentCreditRequest) -> RepaymentCreditResponse | Response:
         url = f'{self.base_url}/credit/repay'
         response = requests.post(
             url=url,
@@ -20,5 +21,5 @@ class RepaymentCreditRequester(Requester):
 
         if response.status_code == HTTPStatus.OK:
             return RepaymentCreditResponse(**response.json())
-        return response
+        return response.text
 

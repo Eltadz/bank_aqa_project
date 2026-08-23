@@ -1,5 +1,4 @@
 from http import HTTPStatus
-
 from requests import Response
 import requests
 
@@ -18,4 +17,4 @@ class DepositCreditAccountRequester(Requester):
         self.response_spec(response)
         if response.status_code in [HTTPStatus.OK, HTTPStatus.CREATED]:
             return DepositCreditAccountResponse(**response.json())
-        return response
+        return response.text

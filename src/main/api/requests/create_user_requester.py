@@ -18,4 +18,4 @@ class CreateUserRequester(Requester):
         self.response_spec(response)
         if response.status_code in [HTTPStatus.OK, HTTPStatus.CREATED]:
             return CreateUserResponse(**response.json())
-        return response
+        return response.text

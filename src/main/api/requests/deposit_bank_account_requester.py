@@ -19,4 +19,4 @@ class DepositBankAccountRequester(Requester):
         self.response_spec(response)
         if response.status_code == HTTPStatus.OK:
             return DepositBankAccountResponse(**response.json())
-        return response
+        return response.text

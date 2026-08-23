@@ -19,4 +19,4 @@ class TransferBankAccountRequester(Requester):
         self.response_spec(response)
         if response.status_code == HTTPStatus.OK:
             return TransferBankAccountResponse(**response.json())
-        return response
+        return response.text

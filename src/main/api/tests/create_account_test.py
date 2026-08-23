@@ -11,6 +11,9 @@ from src.main.api.requests.creat_account_requester import CreateAccountRequester
 
 @pytest.mark.api
 class TestCreateBankAccount:
+
+
+
     def test_create_bank_account(self):
 
        # создание юсера
@@ -22,12 +25,16 @@ class TestCreateBankAccount:
         ).post(create_user_request)
 
 
-        
-       # создаем аккаунт
+
+       # создаем аккаунты
+        for _ in range(2):
+            response_create_account = CreateAccountRequester(
+                request_spec=RequestSpecs.auth_headers(username=username, password='Pas!sw0rd'),
+                response_spec=ResponseSpecs.request_created()
+            ).post()
+        assert response_create_account.balance == 0
+
         response = CreateAccountRequester(
             request_spec=RequestSpecs.auth_headers(username=username, password='Pas!sw0rd'),
-            response_spec=ResponseSpecs.request_created()
+            response_spec=ResponseSpecs.request_409()
         ).post()
-
-        assert response.balance == 0
-        id_account = response.id
