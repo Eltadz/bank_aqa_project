@@ -30,7 +30,7 @@ class TestBankAccount:
         [
             1000,
             9000,
-            8000
+            5000
         ]
 
     )
