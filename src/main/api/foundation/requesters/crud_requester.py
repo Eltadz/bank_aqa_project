@@ -11,11 +11,11 @@ import requests
 
 
 
-
-
+# у каждого класса должна быть своя зона ответственности, важное разделение
+# CrudRequester отвечает за HTTP-действие: собрать запрос, отправить его, получить Response, проверить ожидаемый status code
 # для негативных сценариев где нужен сырой ответ
 
-
+# транспортный HTTP уровень, все проходит через crud потом ток в validate если есть данные для валидации через пайдентик модели
 class CrudRequester(HTTPRequester):
     def post(self,  model: Optional[BaseModel]) -> Response:
         body = model.model_dump() if model is not None else ''

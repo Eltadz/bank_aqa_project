@@ -1,6 +1,8 @@
 
 import pytest
 import random
+
+
 from src.main.api.models.create_user_request import CreateUserRequest
 from src.main.api.requests.create_user_requester import CreateUserRequester
 from src.main.api.specs.request_specs import RequestSpecs
@@ -9,17 +11,19 @@ from src.main.api.specs.response_specs import ResponseSpecs
 
 @pytest.mark.api
 class TestCreateUser:
-    def test_create_user(self):
+    def test_create_user(self, api_manager):
 
         username = f'Vika{(random.randint(1, 10000))}'
         create_user_request = CreateUserRequest(username=username, password='Pas!sw0rd', role='ROLE_USER')
-        response = CreateUserRequester(
-            RequestSpecs.auth_headers(username='admin', password='123456'),
-            ResponseSpecs.request_ok()
-        ).post(create_user_request)
+        response = api_manager.admin_steps.create_user_valid(create_user_request)
+
 
         assert create_user_request.username == response.username
         assert create_user_request.role == response.role
+
+
+
+
 
 
 
